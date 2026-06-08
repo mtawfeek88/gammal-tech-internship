@@ -22,3 +22,12 @@ A Python ETL pipeline that cleans fake healthcare CSV data and loads it into a M
 
 ## Note
 This uses fake/synthetic data only. The password and encryption key are hardcoded for demo purposes – never do this in production.
+
+## Update: Data Science Analysis Added
+
+I've added `data_scientist.py` which:
+- Queries the MySQL database using SELECT statements
+- Analyzes prescription patterns, appointment statuses, and insurance claims
+- Built as part of my data science rotation at Gammal Tech
+
+All analysis uses the same synthetic healthcare data from the ETL pipeline.
