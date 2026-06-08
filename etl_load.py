@@ -72,6 +72,10 @@ def clean_insurance(df):
 def clean_appointments(df):
     """Clean appointments data"""
     df = df.dropna(subset=['appointment_id', 'patient_id', 'doctor_id'])
+    
+    # Fix date formats
+    df = clean_dates(df, ['appointment_date'])
+    
     valid_statuses = ['Scheduled', 'Completed', 'Cancelled']
     df['status'] = df['status'].apply(lambda x: x if x in valid_statuses else 'Scheduled')
     return df
@@ -93,6 +97,14 @@ def clean_claims(df):
     df['amount'] = df['amount'].fillna(0)
     return df
 
+def clean_dates(df, date_columns):
+    """Convert multiple date formats to YYYY-MM-DD"""
+    for col in date_columns:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], errors='coerce', format='mixed')
+            # Convert to string in YYYY-MM-DD format
+            df[col] = df[col].dt.strftime('%Y-%m-%d')
+    return df
 # ============================================
 # STEP 2: CREATE DATABASE AND TABLES (WITH ENCRYPTION)
 # ============================================
@@ -222,43 +234,59 @@ def create_tables():
 # ============================================
 
 def load_to_mysql_batch(df, table_name, encrypt_columns=None):
-    """Load dataframe to MySQL table using BATCH insert (faster)"""
+    """Load dataframe to MySQL table with real encryption"""
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
         
-        # 🔽 ADD THIS LINE 🔽
         cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-        
-        # Clear table first
         cursor.execute(f"DELETE FROM {table_name}")
         
-        # Convert dataframe to list of tuples
-        rows = [tuple(row) for _, row in df.iterrows()]
+        if table_name == 'patients' and encrypt_columns:
+            # Manually insert with AES_ENCRYPT for patient names
+            for _, row in df.iterrows():
+                sql = """
+                    INSERT INTO patients (patient_id, name, age, phone, insurance_company_id)
+                    VALUES (%s, AES_ENCRYPT(%s, %s), %s, %s, %s)
+                """
+                cursor.execute(sql, (
+                    row['patient_id'], 
+                    row['name'], 
+                    ENCRYPTION_KEY,
+                    row['age'], 
+                    row['phone'], 
+                    row['insurance_company_id']
+                ))
+            print(f"   🔐 Encrypted {len(df)} patient names")
+            
+        elif table_name == 'doctors' and encrypt_columns:
+            # Manually insert with AES_ENCRYPT for doctor names
+            for _, row in df.iterrows():
+                sql = """
+                    INSERT INTO doctors (doctor_id, name, specialty, phone)
+                    VALUES (%s, AES_ENCRYPT(%s, %s), %s, %s)
+                """
+                cursor.execute(sql, (
+                    row['doctor_id'], 
+                    row['name'], 
+                    ENCRYPTION_KEY,
+                    row['specialty'], 
+                    row['phone']
+                ))
+            print(f"   🔐 Encrypted {len(df)} doctor names")
+            
+        else:
+            # Normal batch insert for other tables (no encryption)
+            rows = [tuple(row) for _, row in df.iterrows()]
+            if rows:
+                columns = ', '.join(df.columns)
+                placeholders = ', '.join(['%s'] * len(df.columns))
+                sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+                cursor.executemany(sql, rows)
         
-        if not rows:
-            print(f"⚠️ No rows to load into {table_name}")
-            # 🔽 ADD THIS BEFORE RETURN 🔽
-            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
-            return True
-        
-        # Build insert SQL
-        columns = ', '.join(df.columns)
-        placeholders = ', '.join(['%s'] * len(df.columns))
-        sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        
-        # Encrypt sensitive columns if needed
-        if encrypt_columns:
-            print(f"   🔐 Encrypting columns: {encrypt_columns}")
-        
-        # Batch insert
-        cursor.executemany(sql, rows)
         conn.commit()
-        
-        # 🔽 ADD THIS LINE 🔽
         cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
-        
-        print(f"✅ Loaded {len(rows)} rows into {table_name}")
+        print(f"✅ Loaded {len(df)} rows into {table_name}")
         cursor.close()
         conn.close()
         return True
