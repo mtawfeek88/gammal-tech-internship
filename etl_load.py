@@ -341,8 +341,7 @@ def main():
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
-        except Error as e:
-            print(f"   Verification skipped: {e}")
+        
         cursor.execute("SELECT patient_id, age, phone FROM patients LIMIT 5")
         for row in cursor.fetchall():
             print(f"   ID: {row[0]}, Age: {row[1]}, Phone: {row[2]}")
