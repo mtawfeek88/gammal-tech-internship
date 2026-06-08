@@ -1,11 +1,11 @@
 doctor_id,name,specialty,phone
-1,Dr. Ahmed Samir,Cardiology,01112223334
-2,Dr. Mona Hassan,Pediatrics,01123334445
-3,Dr. Khaled Abdelrahman,Orthopedics,01134445556
-4,Dr. Reem Youssef,Dermatology,01145556667
-5,Dr. Tarek Mahmoud,Neurology,01156667778
-6,Dr. Hend Mostafa,Psychiatry,01167778889
-7,Dr. Sherif Ali,General Medicine,01178889990
-8,Dr. Noha Adel,Ophthalmology,01189990001
-9,Dr. Walid Hossam,Urology,01190001112
-10,Dr. Salma Tarek,ENT,01101112223
+1,Dr Ahmed Samir,Heart Doctor,01112223334
+2,Dr Mona Hassan,Children,01123334445
+3,Dr Khaled Abdelrahman,,01134445556
+4,Dr Reem Youssef,Skin,01145556667
+5,Dr Tarek Mahmoud,Brain Dr,
+6,Dr Hend Mostafa,Mind Doctor,01167778889
+7,Dr Sherif Ali,General,01178889990
+8,Dr Noha Adel,Eye Specialist,
+9,Dr Walid Hossam,Urinary,01190001112
+10,Dr Salma Tarek,Ear Nose Throat,01101112223
