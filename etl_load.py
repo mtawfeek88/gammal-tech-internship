@@ -227,6 +227,9 @@ def load_to_mysql_batch(df, table_name, encrypt_columns=None):
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
         
+        # 🔽 ADD THIS LINE 🔽
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        
         # Clear table first
         cursor.execute(f"DELETE FROM {table_name}")
         
@@ -235,6 +238,8 @@ def load_to_mysql_batch(df, table_name, encrypt_columns=None):
         
         if not rows:
             print(f"⚠️ No rows to load into {table_name}")
+            # 🔽 ADD THIS BEFORE RETURN 🔽
+            cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
             return True
         
         # Build insert SQL
@@ -244,12 +249,14 @@ def load_to_mysql_batch(df, table_name, encrypt_columns=None):
         
         # Encrypt sensitive columns if needed
         if encrypt_columns:
-            # This is a simplified example - real encryption would use AES_ENCRYPT in SQL
             print(f"   🔐 Encrypting columns: {encrypt_columns}")
         
-        # Batch insert (much faster than row by row)
+        # Batch insert
         cursor.executemany(sql, rows)
         conn.commit()
+        
+        # 🔽 ADD THIS LINE 🔽
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
         
         print(f"✅ Loaded {len(rows)} rows into {table_name}")
         cursor.close()
@@ -341,7 +348,6 @@ def main():
     try:
         conn = mysql.connector.connect(**DB_CONFIG)
         cursor = conn.cursor()
-        
         cursor.execute("SELECT patient_id, age, phone FROM patients LIMIT 5")
         for row in cursor.fetchall():
             print(f"   ID: {row[0]}, Age: {row[1]}, Phone: {row[2]}")
