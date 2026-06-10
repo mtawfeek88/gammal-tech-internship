@@ -1,33 +1,84 @@
-# Gammal Tech Internship – Healthcare ETL Pipeline
+# Gammal Tech Internship – Healthcare Data Platform (ETL + Data Science)
 
 ## What this is
-A Python ETL pipeline that cleans fake healthcare CSV data and loads it into a MySQL database. Built as part of my rotational internship at Gammal Tech.
+
+A complete Data Engineer + Data Scientist project built during my rotational internship at Gammal Tech.
+
+**Part 1: Data Engineer** – ETL pipeline that cleans fake healthcare CSV data and loads it into MySQL.
+
+**Part 2: Data Scientist** – Analysis, visualizations, and machine learning on the same database.
 
 ## Tech used
-- Python (pandas, mysql-connector)
+
+- Python (pandas, mysql-connector, matplotlib, seaborn, scikit-learn)
 - MySQL
+- Jupyter Notebook
 - Synthetic data only – no real patient information
 
-## What the pipeline does
-1. Reads 7 CSV files (patients, doctors, prescriptions, etc.)
-2. Cleans bad data (fixes missing values, invalid ages, wrong statuses)
-3. Creates a MySQL database with foreign key relationships
-4. Loads cleaned data in dependency order
+## Project Files
 
-## How to run (for anyone reviewing this)
-1. Install dependencies: `pip install pandas mysql-connector-python`
-2. Have MySQL running locally
-3. Change the password in `DB_CONFIG` to your own MySQL password
-4. Run: `python etl_load.py`
+| File | What it does |
+|------|--------------|
+| `etl_load.py` | ETL pipeline: reads CSV → cleans data → loads into MySQL |
+| `data_scientist.py` | Menu-based analysis: run SQL queries from terminal |
+| `Data_Scientist_Healthcare_Analysis.ipynb` | Jupyter notebook with visualizations + ML model |
+| `csv_files/` | Contains 7 CSV files with synthetic healthcare data |
 
-## Note
-This uses fake/synthetic data only. The password and encryption key are hardcoded for demo purposes – never do this in production.
+## What the pipeline does (Data Engineer)
 
-## Update: Data Science Analysis Added
+- Reads 7 CSV files (patients, doctors, appointments, prescriptions, pharmacies, insurance_companies, insurance_claims)
+- Cleans bad data (fixes missing values, invalid ages, wrong statuses, mixed date formats)
+- Creates a MySQL database with foreign key relationships
+- Loads cleaned data in dependency order (parents before children)
 
-I've added `data_scientist.py` which:
-- Queries the MySQL database using SELECT statements
-- Analyzes prescription patterns, appointment statuses, and insurance claims
-- Built as part of my data science rotation at Gammal Tech
+## What the analysis does (Data Scientist)
 
-All analysis uses the same synthetic healthcare data from the ETL pipeline.
+### Option 1: Terminal Menu (`data_scientist.py`)
+Run from command line: `python data_scientist.py`
+- Choose from 8 business questions (1-8)
+- Get instant answers from MySQL
+- No visualizations, just results
+
+### Option 2: Jupyter Notebook (`Data_Scientist_Healthcare_Analysis.ipynb`)
+Contains:
+- **Data quality checks** – missing values, age ranges, status distribution
+- **Visualizations** – bar charts, histograms, time series plots
+- **Key business questions answered**
+- **Machine Learning model** – Logistic Regression to predict patient no-shows
+- **Business recommendations**
+
+## How to run
+
+### Prerequisites
+- MySQL installed and running locally
+- Python 3.8+
+
+### Step 1: Install dependencies
+
+**For ETL + menu script:**
+```bash
+pip install pandas mysql-connector-python
+
+For Jupyter notebook (add these):
+
+pip install jupyter matplotlib seaborn scikit-learn
+
+Or install all at once:
+
+pip install pandas mysql-connector-python jupyter matplotlib seaborn scikit-learn
+
+Notes
+
+    This uses fake/synthetic data only – no real patient information
+
+    The password and encryption key are hardcoded for demo purposes – never do this in production
+
+    As an intern, I had no access to production data – this is my learning portfolio
+
+Author
+
+Intern at Gammal Tech (Healthcare Division)
+
+Date
+
+June 2026
